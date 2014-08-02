@@ -16,6 +16,10 @@
 - (IBAction)imagePanned:(UIPanGestureRecognizer *)sender;
 @property CGPoint imageOriginalCenter;
 
+@property int leftBound;
+@property int rightBound;
+
+
 @property (weak, nonatomic) IBOutlet UIButton *NewRectangleButton;
 - (IBAction)NewRectButtonPressed:(UIButton *)sender;
 
