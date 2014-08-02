@@ -26,6 +26,17 @@
     _RectangleImage.userInteractionEnabled = YES; // Need despite "User Interaction Enabled" checked for UIImageView
     _NewRectangleButton.enabled = NO;
 
+    // Options for rotating:
+    // Set anchor point, let them rotate... necessitates some oddities where doing the positioning is concerned...
+    // OR
+    // Calculate out how much to rotate the center on our own, pretending for a certain point of rotation out from center.
+    // More mathy, probably.
+    
+    // let's just play with the anchor point here first...
+    [_RectangleImage.layer setAnchorPoint:CGPointMake(0.5, 0)];
+    [_RectangleImage.layer setPosition:CGPointMake(_RectangleImage.frame.origin.x+(_RectangleImage.frame.size.width/2),
+                                                   _RectangleImage.frame.origin.y-(_RectangleImage.frame.size.width/2))];
+    
     _imageOriginalCenter = _RectangleImage.center;
 }
 
@@ -56,7 +67,9 @@
             delta.x = _imageOriginalCenter.x+delta.x;
             delta.y = _imageOriginalCenter.y+delta.y;
             _RectangleImage.center = delta;
-            // also need to rotate...
+
+            // if pan below center, anchor is above and vice versa
+            
             break;
         }
         case UIGestureRecognizerStateBegan: {
