@@ -14,8 +14,7 @@
 @property (weak, nonatomic) IBOutlet UIImageView *RectangleImage;
 
 - (IBAction)imagePanned:(UIPanGestureRecognizer *)sender;
-@property CGPoint imageOriginPoint;
-@property CGPoint initialPanPoint;
+@property CGPoint imageOriginalCenter;
 
 @property (weak, nonatomic) IBOutlet UIButton *NewRectangleButton;
 - (IBAction)NewRectButtonPressed:(UIButton *)sender;

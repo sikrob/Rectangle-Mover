@@ -25,6 +25,8 @@
 
     _RectangleImage.userInteractionEnabled = YES; // Need despite "User Interaction Enabled" checked for UIImageView
     _NewRectangleButton.enabled = NO;
+
+    _imageOriginalCenter = _RectangleImage.center;
 }
 
 - (void)didReceiveMemoryWarning
@@ -35,8 +37,14 @@
 
 
 - (IBAction)NewRectButtonPressed:(UIButton *)sender {
-    _RectangleImage.transform = CGAffineTransformIdentity;
-    // fade in animation
+    _RectangleImage.layer.opacity = 0;
+    _RectangleImage.center = _imageOriginalCenter;
+
+    [UIView animateWithDuration:.25 animations:^{
+        _RectangleImage.layer.opacity = 1.0;
+    }];
+    
+    _NewRectangleButton.enabled = NO;
 }
 
 
@@ -45,22 +53,42 @@
         case UIGestureRecognizerStateChanged:{
             CGPoint delta;
             delta = [sender translationInView:[_RectangleImage superview]];
-            delta.x = _initialPanPoint.x+delta.x;
-            delta.y = _initialPanPoint.y+delta.y;
+            delta.x = _imageOriginalCenter.x+delta.x;
+            delta.y = _imageOriginalCenter.y+delta.y;
             _RectangleImage.center = delta;
+            // also need to rotate...
             break;
         }
         case UIGestureRecognizerStateBegan: {
-            _initialPanPoint = _RectangleImage.center;
+
             break;
         }
         case UIGestureRecognizerStateEnded: {
-            // if out of bound
-            //  shift to side, 'remove'(hide)
-            // if in bound
-            [UIView animateWithDuration:.2 animations:^{
-                _RectangleImage.center = _initialPanPoint;
-            }];
+            if (_RectangleImage.center.x > 100 && _RectangleImage.center.x < 210) {
+                [UIView animateWithDuration:.2 animations:^{
+                    _RectangleImage.center = _imageOriginalCenter;
+                    // this also need to unwrap the rotation
+                } completion:^(BOOL finished){
+                    if (finished) {
+                        // Need to create a bounce animation... initial thoughts:
+                        // determine vector of travel; over apply by a small amount past actual originalCenter,
+                        // then do the same in the opposite direction, then go to center.
+                    }
+                }];
+
+            } else {
+                [UIView animateWithDuration:.2 animations:^{
+                    CGPoint offScreenPoint;
+                    offScreenPoint.y = _RectangleImage.center.y;
+                    if (_RectangleImage.center.x > 210) {
+                        offScreenPoint.x = _RectangleImage.frame.size.height*2;
+                    } else {
+                        offScreenPoint.x = -_RectangleImage.frame.size.height*2;
+                    }
+                    _RectangleImage.center = offScreenPoint;
+                }];
+                _NewRectangleButton.enabled = YES;
+            }
             break;
         }
         default:
