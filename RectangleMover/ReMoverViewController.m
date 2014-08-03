@@ -50,32 +50,39 @@
 - (IBAction)imagePanned:(UIPanGestureRecognizer *)sender {
     switch (sender.state) {
         case UIGestureRecognizerStateChanged:{
-
             _RectangleImage.center = [self getNewCenterForPanTranslation:sender];
             _RectangleImage.transform = [self getRotationForPanTranslation:[sender velocityInView:[_RectangleImage superview]]
                                                            withAnchorBelow:_touchOnTop];
-
             break;
         }
         case UIGestureRecognizerStateBegan: {
-            NSLog(@"\n\nNew pan event.");
             CGPoint touch = [sender locationOfTouch:0 inView:_RectangleImage];
             _touchOnTop = (touch.y < _RectangleImage.bounds.size.height/2);
-            
-
             break;
         }
         case UIGestureRecognizerStateEnded: {
+            float y = -(_imageOriginalCenter.y - _RectangleImage.center.y);
+            float x = -(_imageOriginalCenter.x - _RectangleImage.center.x);
+            float t;
+            if (y != 0) {
+                t = atanf(x/y);
+            } else if (x > 0) {
+                t = 0;
+            } else  if (x < 0) {
+                t = M_PI;
+            }
+
+
             if (_RectangleImage.center.x > _leftBound && _RectangleImage.center.x < _rightBound) {
                 [UIView animateWithDuration:.2 animations:^{
                     _RectangleImage.center = _imageOriginalCenter;
                     _RectangleImage.transform = CGAffineTransformIdentity;
-
                 } completion:^(BOOL finished){
                     if (finished) {
                         // Need to create a bounce animation... initial thoughts:
                         // determine vector of travel; over apply by a small amount past actual originalCenter,
                         // then do the same in the opposite direction, then go to center.
+                        
                     }
                 }];
             } else {
