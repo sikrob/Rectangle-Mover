@@ -25,6 +25,7 @@
     
     _leftBound = 90;
     _rightBound = 220;
+    _anchorOffset = 1000;
 }
 
 - (void)didReceiveMemoryWarning
@@ -36,7 +37,6 @@
 
 - (IBAction)NewRectButtonPressed:(UIButton *)sender {
     _RectangleImage.transform = CGAffineTransformIdentity;
-//    _imageOriginalCenter = CGPointApplyAffineTransform(_imageOriginalCenter, _RectangleImage.transform);
     _RectangleImage.layer.opacity = 0;
     _RectangleImage.center = _imageOriginalCenter;
     
@@ -50,30 +50,19 @@
 - (IBAction)imagePanned:(UIPanGestureRecognizer *)sender {
     switch (sender.state) {
         case UIGestureRecognizerStateChanged:{
-            CGPoint newOrigin = _imageOriginalCenter;
-//            newOrigin = CGPointApplyAffineTransform(newOrigin, _RectangleImage.transform);
-            
-            CGPoint delta;
 
-            delta = [sender translationInView:[_RectangleImage superview]];
-//            delta = CGPointApplyAffineTransform(delta, _RectangleImage.transform);
-            delta.x = newOrigin.x+delta.x;
-            delta.y = newOrigin.y+delta.y;
-            
-            
-            
-            _RectangleImage.center = delta;
-            
-            // if pan below center, anchor is above and vice versa
-//            _RectangleImage.transform = CGAffineTransformRotate(_RectangleImage.transform, .1);//atanf((50)/(100)));
-
-            _RectangleImage.transform = CGAffineTransformRotate(_RectangleImage.transform, atanf((_imageOriginalCenter.x-_RectangleImage.center.x)/(_imageOriginalCenter.y*2-_RectangleImage.center.y)));
-            
+            _RectangleImage.center = [self getNewCenterForPanTranslation:sender];
+            _RectangleImage.transform = [self getRotationForPanTranslation:[sender velocityInView:[_RectangleImage superview]]
+                                                           withAnchorBelow:_touchOnTop];
 
             break;
         }
         case UIGestureRecognizerStateBegan: {
-            // set top or bottom zone recognition?
+            NSLog(@"\n\nNew pan event.");
+            CGPoint touch = [sender locationOfTouch:0 inView:_RectangleImage];
+            _touchOnTop = (touch.y < _RectangleImage.bounds.size.height/2);
+            
+
             break;
         }
         case UIGestureRecognizerStateEnded: {
@@ -89,7 +78,6 @@
                         // then do the same in the opposite direction, then go to center.
                     }
                 }];
-
             } else {
                 [UIView animateWithDuration:.2 animations:^{
                     CGPoint offScreenPoint;
@@ -110,6 +98,53 @@
             break;
     }
 
+}
+
+-(CGPoint) getNewCenterForPanTranslation:(UIPanGestureRecognizer*)panGestureRecognizer {
+    CGPoint delta;
+    delta = [panGestureRecognizer translationInView:[_RectangleImage superview]];
+    delta.x = _imageOriginalCenter.x+delta.x;
+    delta.y = _imageOriginalCenter.y+delta.y;
+    return delta;
+}
+
+-(CGAffineTransform) getRotationForPanTranslation:(CGPoint) velocity withAnchorBelow:(BOOL)anchorBelow {
+    CGAffineTransform transform = _RectangleImage.transform;
+    // get y
+    float y = ([self getAnchorY:anchorBelow] -_RectangleImage.center.y); // never 0 thanks to sizes chosen
+
+    // get x
+    float x = (_imageOriginalCenter.x-_RectangleImage.center.x);
+
+    // get theta
+    float theta = atanf(x/y);
+
+    // apply
+    transform.a =  cosf(theta);
+    transform.b =  sinf(theta);
+    transform.c = -sinf(theta);
+    transform.d =  cosf(theta);
+
+    return transform;
+}
+
+-(float) getAnchorY:(BOOL)anchorBelow {
+    // Anchor value chosen based on what most closely creates the angles we
+    // want in our rectangle, based on testing.
+
+    // Bonus: As long as our anchor value is longer than 233+568, we never
+    // have to worry about /0 errors in the angle calculation (see getRotationforPanTranslation)
+    // • 233 is longest path to center of the rectangle
+    // • 568 is bottom of screen
+    // • 233+568 = the farthest the rect center can go.
+
+    float adjacentY = _imageOriginalCenter.y;
+    if (anchorBelow) {
+        adjacentY -= _anchorOffset;
+    } else {
+        adjacentY += _anchorOffset;
+    }
+    return adjacentY;
 }
 
 @end
