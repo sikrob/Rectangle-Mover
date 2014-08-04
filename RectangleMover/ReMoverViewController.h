@@ -23,7 +23,6 @@
 @property float bounceOffset;
 @property float bounceBackOffset;
 
-
 @property (weak, nonatomic) IBOutlet UIButton *NewRectangleButton;
 - (IBAction)NewRectButtonPressed:(UIButton *)sender;
 

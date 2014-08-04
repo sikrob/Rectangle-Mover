@@ -20,16 +20,13 @@
 
     _RectangleImage.userInteractionEnabled = YES;
     _NewRectangleButton.enabled = NO;
-
     _imageOriginalCenter = _RectangleImage.center;
-
     _leftBound = 90;
     _rightBound = 220;
     _touchAboveCenter = YES;
     _anchorOffset = 900;
     _bounceOffset = 10;
     _bounceBackOffset = -5;
-
 }
 
 - (void)didReceiveMemoryWarning
@@ -132,7 +129,6 @@
     float x = (_imageOriginalCenter.x-_RectangleImage.center.x);
     float theta = [self getATanAngleFromX:x andY:y];
 
-    // apply
     transform.a =  cosf(theta);
     transform.b =  sinf(theta);
     transform.c = -sinf(theta);
