@@ -26,6 +26,9 @@
     _leftBound = 90;
     _rightBound = 220;
     _anchorOffset = 1000;
+    _bounceOffset = 10;
+    _bounceBackOffset = -5;
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -61,42 +64,43 @@
             break;
         }
         case UIGestureRecognizerStateEnded: {
-            float y = -(_imageOriginalCenter.y - _RectangleImage.center.y);
-            float x = -(_imageOriginalCenter.x - _RectangleImage.center.x);
-            float t;
-            if (y != 0) {
-                t = atanf(x/y);
-            } else if (x > 0) {
-                t = 0;
-            } else  if (x < 0) {
-                t = M_PI;
-            }
+            float x = _imageOriginalCenter.x - _RectangleImage.center.x;
+            float y = _imageOriginalCenter.y - _RectangleImage.center.y;
+            if (!(y == 0 && x == 0)) {
+                float angle = [self getATanAngleFromX:x andY:y];
+                CGPoint bounceTarget = [self getBounceTargetFromAngle:angle andOffset:_bounceOffset];
+                CGPoint negativeBounceTarget = [self getBounceTargetFromAngle:angle andOffset:_bounceBackOffset];
 
-
-            if (_RectangleImage.center.x > _leftBound && _RectangleImage.center.x < _rightBound) {
-                [UIView animateWithDuration:.2 animations:^{
-                    _RectangleImage.center = _imageOriginalCenter;
-                    _RectangleImage.transform = CGAffineTransformIdentity;
-                } completion:^(BOOL finished){
-                    if (finished) {
-                        // Need to create a bounce animation... initial thoughts:
-                        // determine vector of travel; over apply by a small amount past actual originalCenter,
-                        // then do the same in the opposite direction, then go to center.
-                        
-                    }
-                }];
-            } else {
-                [UIView animateWithDuration:.2 animations:^{
-                    CGPoint offScreenPoint;
-                    offScreenPoint.y = _RectangleImage.center.y;
-                    if (_RectangleImage.center.x > _rightBound) {
-                        offScreenPoint.x = _RectangleImage.frame.size.height*2;
-                    } else {
-                        offScreenPoint.x = -_RectangleImage.frame.size.height*2;
-                    }
-                    _RectangleImage.center = offScreenPoint;
-                }];
-                _NewRectangleButton.enabled = YES;
+                if (_RectangleImage.center.x > _leftBound && _RectangleImage.center.x < _rightBound) {
+                    [UIView animateWithDuration:.15 delay:0 options:UIViewAnimationOptionAllowUserInteraction animations:^{
+                        _RectangleImage.center = bounceTarget;
+                        _RectangleImage.transform = CGAffineTransformIdentity;
+                    } completion:^(BOOL finished){
+                        if (finished) {
+                            [UIView animateWithDuration:.1 delay:0 options:UIViewAnimationOptionAllowUserInteraction animations:^{
+                                _RectangleImage.center = negativeBounceTarget;
+                            } completion:^(BOOL finished) {
+                                if (finished) {
+                                    [UIView animateWithDuration:.1 animations:^{
+                                        _RectangleImage.center = _imageOriginalCenter;
+                                    }];
+                                }
+                            }];
+                        }
+                    }];
+                } else {
+                    [UIView animateWithDuration:.2 animations:^{
+                        CGPoint offScreenPoint;
+                        offScreenPoint.y = _RectangleImage.center.y;
+                        if (_RectangleImage.center.x > _rightBound) {
+                            offScreenPoint.x = _RectangleImage.frame.size.height*2;
+                        } else {
+                            offScreenPoint.x = -_RectangleImage.frame.size.height*2;
+                        }
+                        _RectangleImage.center = offScreenPoint;
+                    }];
+                    _NewRectangleButton.enabled = YES;
+                }
             }
             break;
         }
@@ -117,14 +121,9 @@
 
 -(CGAffineTransform) getRotationForPanTranslation:(CGPoint) velocity withAnchorBelow:(BOOL)anchorBelow {
     CGAffineTransform transform = _RectangleImage.transform;
-    // get y
     float y = ([self getAnchorY:anchorBelow] -_RectangleImage.center.y); // never 0 thanks to sizes chosen
-
-    // get x
     float x = (_imageOriginalCenter.x-_RectangleImage.center.x);
-
-    // get theta
-    float theta = atanf(x/y);
+    float theta = [self getATanAngleFromX:x andY:y];
 
     // apply
     transform.a =  cosf(theta);
@@ -138,13 +137,6 @@
 -(float) getAnchorY:(BOOL)anchorBelow {
     // Anchor value chosen based on what most closely creates the angles we
     // want in our rectangle, based on testing.
-
-    // Bonus: As long as our anchor value is longer than 233+568, we never
-    // have to worry about /0 errors in the angle calculation (see getRotationforPanTranslation)
-    // • 233 is longest path to center of the rectangle
-    // • 568 is bottom of screen
-    // • 233+568 = the farthest the rect center can go.
-
     float adjacentY = _imageOriginalCenter.y;
     if (anchorBelow) {
         adjacentY -= _anchorOffset;
@@ -152,6 +144,41 @@
         adjacentY += _anchorOffset;
     }
     return adjacentY;
+}
+
+-(float) getATanAngleFromX:(float) x andY:(float)y {
+    float theta = 0.0;
+    if (y != 0) {
+        theta = atanf(x/y);
+    } else if (x > 0) {
+        theta = M_PI/2;
+    } else  if (x < 0) {
+        theta = M_PI*1.5;
+    }
+    return theta;
+}
+
+-(CGPoint) getBounceTargetFromAngle:(float) angle andOffset:(float)offset {
+    CGPoint target = _imageOriginalCenter;
+    if (_imageOriginalCenter.x < _RectangleImage.center.x) {
+        if (_imageOriginalCenter.y < _RectangleImage.center.y) {
+            target.x -= sinf(angle)*offset;
+            target.y -= cosf(angle)*offset;
+        } else {
+            target.x += sinf(angle)*offset;
+            target.y += cosf(angle)*offset;
+        }
+    } else {
+        if (_imageOriginalCenter.y < _RectangleImage.center.y) {
+            target.x -= sinf(angle)*offset;
+            target.y -= cosf(angle)*offset;
+        } else {
+            target.x += sinf(angle)*offset;
+            target.y += cosf(angle)*offset;
+        }
+    }
+
+    return target;
 }
 
 @end

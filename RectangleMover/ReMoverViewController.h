@@ -19,6 +19,8 @@
 @property int leftBound;
 @property int rightBound;
 @property int anchorOffset;
+@property float bounceOffset;
+@property float bounceBackOffset;
 
 
 @property (weak, nonatomic) IBOutlet UIButton *NewRectangleButton;
