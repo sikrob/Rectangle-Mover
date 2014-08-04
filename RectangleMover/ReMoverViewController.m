@@ -20,16 +20,16 @@
 
     _RectangleImage.userInteractionEnabled = YES;
     _NewRectangleButton.enabled = NO;
-    
+
     _imageOriginalCenter = _RectangleImage.center;
-    
+
     _leftBound = 90;
     _rightBound = 220;
     _touchAboveCenter = YES;
     _anchorOffset = 900;
     _bounceOffset = 10;
     _bounceBackOffset = -5;
-    
+
 }
 
 - (void)didReceiveMemoryWarning
@@ -43,18 +43,18 @@
     _RectangleImage.transform = CGAffineTransformIdentity;
     _RectangleImage.layer.opacity = 0;
     _RectangleImage.center = _imageOriginalCenter;
-    
+
     [UIView animateWithDuration:.25 animations:^{
         _RectangleImage.layer.opacity = 1.0;
     }];
-    
+
     _NewRectangleButton.enabled = NO;
 }
 
 - (IBAction)imagePanned:(UIPanGestureRecognizer *)sender {
     switch (sender.state) {
         case UIGestureRecognizerStateChanged:{
-            _RectangleImage.center = [self getCenterForPanTranslation: sender];
+            _RectangleImage.center = [self getNewCenterForPanTranslation:sender];
             _RectangleImage.transform = [self getRotationForPanTranslation:[sender velocityInView:[_RectangleImage superview]]
                                                            withAnchorBelow:_touchAboveCenter];
             break;
@@ -113,14 +113,15 @@
 
 #pragma mark -
 #pragma mark Translation and Rotation
--(CGPoint) getCenterForPanTranslation:(UIPanGestureRecognizer*) gestureRecognizer {
-    float dxTouch = ([gestureRecognizer locationOfTouch:0 inView:[_RectangleImage superview]].x - _initialTouch.x);
+
+-(CGPoint) getNewCenterForPanTranslation:(UIPanGestureRecognizer*) sender {
+    float dxTouch = ([sender locationOfTouch:0 inView:[_RectangleImage superview]].x - _initialTouch.x);
     float offsetY = [self getOffsetY:_touchAboveCenter];
     float angle = [self getATanAngleFromX:dxTouch andY:offsetY]; // only X affects angle, but the actual image center will slide up and down on the hypotenuse
-    float dyTouch = ([gestureRecognizer locationOfTouch:0 inView:[_RectangleImage superview]].y - _initialTouch.y);
+    float dyTouch = ([sender locationOfTouch:0 inView:[_RectangleImage superview]].y - _initialTouch.y);
 
     CGPoint center = _imageOriginalCenter;
-    center.x += tanf(angle)*offsetY;
+    center.x += tanf(angle)*(offsetY-dyTouch);
     center.y = [self getAnchorY:_touchAboveCenter]-(offsetY-dyTouch);
     return center;
 }
