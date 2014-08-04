@@ -59,7 +59,7 @@
             float angle = [self getATanAngleFromX:dxTouch andY:y]; // only X affects angle, but the actual image center will slide up and down on the hypotenuse
 
             float dyTouch = ([sender locationOfTouch:0 inView:[_RectangleImage superview]].y - _initialTouch.y);
-            
+
             _RectangleImage.center = [self getCenterFromAngle:angle andY:y-dyTouch];
             _RectangleImage.transform = [self getRotationForPanTranslation:[sender velocityInView:[_RectangleImage superview]]
                                                            withAnchorBelow:_touchAboveCenter];
@@ -82,29 +82,8 @@
 
 }
 
--(CGPoint) getNewCenterForPanTranslation:(UIPanGestureRecognizer*)panGestureRecognizer {
-    CGPoint delta;
-    delta = [panGestureRecognizer translationInView:[_RectangleImage superview]];
-    delta.x = _imageOriginalCenter.x+delta.x;
-    delta.y = _imageOriginalCenter.y+delta.y;
-    return delta;
-}
-
--(CGAffineTransform) getRotationForPanTranslation:(CGPoint) velocity withAnchorBelow:(BOOL)anchorBelow {
-    CGAffineTransform transform = _RectangleImage.transform;
-    float y = (_RectangleImage.center.y - [self getAnchorY:anchorBelow]); // never 0 thanks to sizes chosen
-    float x = (_imageOriginalCenter.x-_RectangleImage.center.x);
-    float theta = [self getATanAngleFromX:x andY:y];
-
-    // apply
-    transform.a =  cosf(theta);
-    transform.b =  sinf(theta);
-    transform.c = -sinf(theta);
-    transform.d =  cosf(theta);
-
-    return transform;
-}
-
+#pragma mark -
+#pragma mark Angles and Anchors
 -(float) getOffsetY:(BOOL)anchorBelow {
     float offsetY = _anchorOffset;
     if (!anchorBelow) {
@@ -137,12 +116,41 @@
     return theta;
 }
 
+
+#pragma mark -
+#pragma mark Translation and Rotation
 -(CGPoint) getCenterFromAngle:(float) angle andY:(float)y {
     CGPoint center = _imageOriginalCenter;
     center.x += tanf(angle)*y;
     center.y = [self getAnchorY:_touchAboveCenter]-y;
     return center;
 }
+
+-(CGPoint) getNewCenterForPanTranslation:(UIPanGestureRecognizer*)panGestureRecognizer {
+    CGPoint delta;
+    delta = [panGestureRecognizer translationInView:[_RectangleImage superview]];
+    delta.x = _imageOriginalCenter.x+delta.x;
+    delta.y = _imageOriginalCenter.y+delta.y;
+    return delta;
+}
+
+-(CGAffineTransform) getRotationForPanTranslation:(CGPoint) velocity withAnchorBelow:(BOOL)anchorBelow {
+    CGAffineTransform transform = _RectangleImage.transform;
+    float y = (_RectangleImage.center.y - [self getAnchorY:anchorBelow]); // never 0 thanks to sizes chosen
+    float x = (_imageOriginalCenter.x-_RectangleImage.center.x);
+    float theta = [self getATanAngleFromX:x andY:y];
+
+    // apply
+    transform.a =  cosf(theta);
+    transform.b =  sinf(theta);
+    transform.c = -sinf(theta);
+    transform.d =  cosf(theta);
+
+    return transform;
+}
+
+#pragma mark -
+#pragma mark Final Animation Methods
 
 -(CGPoint) getBounceTargetFromAngle:(float) angle andOffset:(float)offset {
     CGPoint target = _imageOriginalCenter;
