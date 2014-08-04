@@ -25,6 +25,7 @@
     
     _leftBound = 90;
     _rightBound = 220;
+    _touchAboveCenter = YES;
     _anchorOffset = 1000;
     _bounceOffset = 10;
     _bounceBackOffset = -5;
@@ -53,14 +54,17 @@
 - (IBAction)imagePanned:(UIPanGestureRecognizer *)sender {
     switch (sender.state) {
         case UIGestureRecognizerStateChanged:{
+            float x = _imageOriginalCenter.x - _RectangleImage.center.x;
+            float y = [self getAnchorY:_touchAboveCenter];
+
             _RectangleImage.center = [self getNewCenterForPanTranslation:sender];
             _RectangleImage.transform = [self getRotationForPanTranslation:[sender velocityInView:[_RectangleImage superview]]
-                                                           withAnchorBelow:_touchOnTop];
+                                                           withAnchorBelow:_touchAboveCenter];
             break;
         }
         case UIGestureRecognizerStateBegan: {
             CGPoint touch = [sender locationOfTouch:0 inView:_RectangleImage];
-            _touchOnTop = (touch.y < _RectangleImage.bounds.size.height/2);
+            _touchAboveCenter = (touch.y < _RectangleImage.bounds.size.height/2);
             break;
         }
         case UIGestureRecognizerStateEnded: {
