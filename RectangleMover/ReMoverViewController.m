@@ -58,18 +58,11 @@
             float y = [self getOffsetY:_touchAboveCenter];//[self getAnchorY:_touchAboveCenter];
             float angle = [self getATanAngleFromX:dxTouch andY:y]; // only X affects angle, but the actual image center will slide up and down on the hypotenuse
 
-            NSLog(@" dAng:%f", angle*(180/M_PI));
-            NSLog(@"Angle: %f", angle);
-
             float dyTouch = ([sender locationOfTouch:0 inView:[_RectangleImage superview]].y - _initialTouch.y);
-
-            NSLog(@"                        dy: %f", y);
-
-
+            
             _RectangleImage.center = [self getCenterFromAngle:angle andY:y-dyTouch];
-
-//            _RectangleImage.transform = [self getRotationForPanTranslation:[sender velocityInView:[_RectangleImage superview]]
-//                                                           withAnchorBelow:_touchAboveCenter];
+            _RectangleImage.transform = [self getRotationForPanTranslation:[sender velocityInView:[_RectangleImage superview]]
+                                                           withAnchorBelow:_touchAboveCenter];
             break;
         }
         case UIGestureRecognizerStateBegan: {
