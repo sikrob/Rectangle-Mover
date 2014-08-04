@@ -11,4 +11,4 @@ This is not my preferred way to implement this sort of behavior; I prefer if you
 Regardless, I also implemented this behavior in a manner where the view is always translated beneath the finger, which provides a more intuitive motion. You can see this version of the project in the goodAngles branch.
 
 ### Non-Affiliation Notice
-Although this project is copying the Tinder app and mentions it in several notes and places, this project is completely unaffiliated with Tinder.
+Although this project is copying certain non-core functionality from the Tinder app and mentions it in several notes and places, this project is completely unaffiliated with Tinder.
