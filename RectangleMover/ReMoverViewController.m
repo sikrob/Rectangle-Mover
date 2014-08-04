@@ -64,44 +64,7 @@
             break;
         }
         case UIGestureRecognizerStateEnded: {
-            float x = _imageOriginalCenter.x - _RectangleImage.center.x;
-            float y = _imageOriginalCenter.y - _RectangleImage.center.y;
-            if (!(y == 0 && x == 0)) {
-                float angle = [self getATanAngleFromX:x andY:y];
-                CGPoint bounceTarget = [self getBounceTargetFromAngle:angle andOffset:_bounceOffset];
-                CGPoint negativeBounceTarget = [self getBounceTargetFromAngle:angle andOffset:_bounceBackOffset];
-
-                if (_RectangleImage.center.x > _leftBound && _RectangleImage.center.x < _rightBound) {
-                    [UIView animateWithDuration:.15 delay:0 options:UIViewAnimationOptionAllowUserInteraction animations:^{
-                        _RectangleImage.center = bounceTarget;
-                        _RectangleImage.transform = CGAffineTransformIdentity;
-                    } completion:^(BOOL finished){
-                        if (finished) {
-                            [UIView animateWithDuration:.1 delay:0 options:UIViewAnimationOptionAllowUserInteraction animations:^{
-                                _RectangleImage.center = negativeBounceTarget;
-                            } completion:^(BOOL finished) {
-                                if (finished) {
-                                    [UIView animateWithDuration:.1 animations:^{
-                                        _RectangleImage.center = _imageOriginalCenter;
-                                    }];
-                                }
-                            }];
-                        }
-                    }];
-                } else {
-                    [UIView animateWithDuration:.2 animations:^{
-                        CGPoint offScreenPoint;
-                        offScreenPoint.y = _RectangleImage.center.y;
-                        if (_RectangleImage.center.x > _rightBound) {
-                            offScreenPoint.x = _RectangleImage.frame.size.height*2;
-                        } else {
-                            offScreenPoint.x = -_RectangleImage.frame.size.height*2;
-                        }
-                        _RectangleImage.center = offScreenPoint;
-                    }];
-                    _NewRectangleButton.enabled = YES;
-                }
-            }
+            [self doPostGestureAnimations];
             break;
         }
         default:
@@ -158,6 +121,13 @@
     return theta;
 }
 
+-(CGPoint) getCenterFromAngle:(float) angle andHypotenuse:(float)hypotenuse {
+    CGPoint center = _imageOriginalCenter;
+    center.x = sinf(angle)*hypotenuse;
+    center.y = cosf(angle)*hypotenuse;
+    return center;
+}
+
 -(CGPoint) getBounceTargetFromAngle:(float) angle andOffset:(float)offset {
     CGPoint target = _imageOriginalCenter;
     if (_imageOriginalCenter.x < _RectangleImage.center.x) {
@@ -179,6 +149,47 @@
     }
 
     return target;
+}
+
+-(void) doPostGestureAnimations {
+    float x = _imageOriginalCenter.x - _RectangleImage.center.x;
+    float y = _imageOriginalCenter.y - _RectangleImage.center.y;
+    if (!(y == 0 && x == 0)) {
+        float angle = [self getATanAngleFromX:x andY:y];
+        CGPoint bounceTarget = [self getBounceTargetFromAngle:angle andOffset:_bounceOffset];
+        CGPoint negativeBounceTarget = [self getBounceTargetFromAngle:angle andOffset:_bounceBackOffset];
+
+        if (_RectangleImage.center.x > _leftBound && _RectangleImage.center.x < _rightBound) {
+            [UIView animateWithDuration:.15 delay:0 options:UIViewAnimationOptionAllowUserInteraction animations:^{
+                _RectangleImage.center = bounceTarget;
+                _RectangleImage.transform = CGAffineTransformIdentity;
+            } completion:^(BOOL finished){
+                if (finished) {
+                    [UIView animateWithDuration:.1 delay:0 options:UIViewAnimationOptionAllowUserInteraction animations:^{
+                        _RectangleImage.center = negativeBounceTarget;
+                    } completion:^(BOOL finished) {
+                        if (finished) {
+                            [UIView animateWithDuration:.1 animations:^{
+                                _RectangleImage.center = _imageOriginalCenter;
+                            }];
+                        }
+                    }];
+                }
+            }];
+        } else {
+            [UIView animateWithDuration:.2 animations:^{
+                CGPoint offScreenPoint;
+                offScreenPoint.y = _RectangleImage.center.y;
+                if (_RectangleImage.center.x > _rightBound) {
+                    offScreenPoint.x = _RectangleImage.frame.size.height*2;
+                } else {
+                    offScreenPoint.x = -_RectangleImage.frame.size.height*2;
+                }
+                _RectangleImage.center = offScreenPoint;
+            }];
+            _NewRectangleButton.enabled = YES;
+        }
+    }
 }
 
 @end
