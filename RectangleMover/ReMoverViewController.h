@@ -15,6 +15,7 @@
 
 - (IBAction)imagePanned:(UIPanGestureRecognizer *)sender;
 @property CGPoint imageOriginalCenter;
+@property CGPoint initialTouch;
 @property BOOL touchAboveCenter;
 @property int leftBound;
 @property int rightBound;
