@@ -41,7 +41,7 @@
 		E1A4D38A198C7FCB00D801F5 /* RectangleMover-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RectangleMover-Info.plist"; sourceTree = "<group>"; };
 		E1A4D38C198C7FCB00D801F5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E1A4D38E198C7FCB00D801F5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		E1A4D390198C7FCB00D801F5 /* RectangleMover-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RectangleMover-Prefix.pch"; sourceTree = "<group>"; };
+		E1A4D390198C7FCB00D801F5 /* RectangleMover-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "RectangleMover-Prefix.pch"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		E1A4D391198C7FCB00D801F5 /* ReMoverAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReMoverAppDelegate.h; sourceTree = "<group>"; };
 		E1A4D392198C7FCB00D801F5 /* ReMoverAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReMoverAppDelegate.m; sourceTree = "<group>"; };
 		E1A4D395198C7FCB00D801F5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -457,6 +457,7 @@
 				E1A4D3B3198C7FCB00D801F5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		E1A4D3B4198C7FCB00D801F5 /* Build configuration list for PBXNativeTarget "RectangleMoverTests" */ = {
 			isa = XCConfigurationList;
@@ -465,6 +466,7 @@
 				E1A4D3B6198C7FCB00D801F5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
