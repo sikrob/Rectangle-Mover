@@ -10,7 +10,20 @@
 
 @interface ReMoverViewController ()
 
+@property CGPoint imageOriginalCenter;
+@property CGPoint initialTouch;
+@property BOOL touchAboveCenter;
+@property int leftBound;
+@property int rightBound;
+@property int anchorOffset;
+@property float bounceOffset;
+@property float bounceBackOffset;
+
+- (IBAction)newRectButtonPressed:(UIButton *)sender;
+- (IBAction)imagePanned:(UIPanGestureRecognizer *)sender;
+
 @end
+
 
 @implementation ReMoverViewController
 

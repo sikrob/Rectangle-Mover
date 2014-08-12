@@ -12,18 +12,6 @@
 
 @property (strong, nonatomic) IBOutlet UIView *MainView;
 @property (weak, nonatomic) IBOutlet UIImageView *RectangleImage;
-
-- (IBAction)imagePanned:(UIPanGestureRecognizer *)sender;
-@property CGPoint imageOriginalCenter;
-@property CGPoint initialTouch;
-@property BOOL touchAboveCenter;
-@property int leftBound;
-@property int rightBound;
-@property int anchorOffset;
-@property float bounceOffset;
-@property float bounceBackOffset;
-
 @property (weak, nonatomic) IBOutlet UIButton *NewRectangleButton;
-- (IBAction)newRectButtonPressed:(UIButton *)sender;
 
 @end
