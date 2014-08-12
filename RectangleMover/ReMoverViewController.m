@@ -36,7 +36,7 @@
 }
 
 
-- (IBAction)NewRectButtonPressed:(UIButton *)sender {
+- (IBAction)newRectButtonPressed:(UIButton *)sender {
     self.RectangleImage.transform = CGAffineTransformIdentity;
     self.RectangleImage.layer.opacity = 0;
     self.RectangleImage.center = self.imageOriginalCenter;
@@ -51,8 +51,8 @@
 - (IBAction)imagePanned:(UIPanGestureRecognizer *)sender {
     switch (sender.state) {
         case UIGestureRecognizerStateChanged:{
-            self.RectangleImage.center = [self getNewCenterForPanTranslation:sender];
-            self.RectangleImage.transform = [self getRotationForPanTranslation:[sender velocityInView:[self.RectangleImage superview]]
+            self.RectangleImage.center = [self newCenterForPanTranslation:sender];
+            self.RectangleImage.transform = [self rotationForPanTranslation:[sender velocityInView:[self.RectangleImage superview]]
                                                            withAnchorBelow:self.touchAboveCenter];
             break;
         }
@@ -75,7 +75,7 @@
 
 #pragma mark -
 #pragma mark Angles and Anchors
--(float) getOffsetY:(BOOL)anchorBelow {
+-(float)offsetY:(BOOL)anchorBelow {
     float offsetY = self.anchorOffset;
     if (!anchorBelow) {
         offsetY = -offsetY;
@@ -83,7 +83,7 @@
     return offsetY;
 }
 
--(float) getAnchorY:(BOOL)anchorBelow {
+-(float)anchorY:(BOOL)anchorBelow {
     // Anchor value chosen based on what most closely creates the angles we
     // want in our rectangle, based on testing.
     float adjacentY = self.imageOriginalCenter.y;
@@ -95,7 +95,7 @@
     return adjacentY;
 }
 
--(float) getATanAngleFromX:(float) x andY:(float)y {
+-(float)tanAngleFromX:(float) x andY:(float)y {
     float theta = 0.0;
     if (y != 0) {
         theta = atanf(x/y);
@@ -111,23 +111,23 @@
 #pragma mark -
 #pragma mark Translation and Rotation
 
--(CGPoint) getNewCenterForPanTranslation:(UIPanGestureRecognizer*) sender {
+-(CGPoint)newCenterForPanTranslation:(UIPanGestureRecognizer*) sender {
     float dxTouch = ([sender locationOfTouch:0 inView:[self.RectangleImage superview]].x - self.initialTouch.x);
-    float offsetY = [self getOffsetY:self.touchAboveCenter];
-    float angle = [self getATanAngleFromX:dxTouch andY:offsetY]; // only X affects angle, but the actual image center will slide up and down on the hypotenuse
+    float offsetY = [self offsetY:self.touchAboveCenter];
+    float angle = [self tanAngleFromX:dxTouch andY:offsetY]; // only X affects angle, but the actual image center will slide up and down on the hypotenuse
     float dyTouch = ([sender locationOfTouch:0 inView:[self.RectangleImage superview]].y - self.initialTouch.y);
 
     CGPoint center = self.imageOriginalCenter;
     center.x += tanf(angle)*(offsetY-dyTouch);
-    center.y = [self getAnchorY:self.touchAboveCenter]-(offsetY-dyTouch);
+    center.y = [self anchorY:self.touchAboveCenter]-(offsetY-dyTouch);
     return center;
 }
 
--(CGAffineTransform) getRotationForPanTranslation:(CGPoint) velocity withAnchorBelow:(BOOL)anchorBelow {
+-(CGAffineTransform)rotationForPanTranslation:(CGPoint) velocity withAnchorBelow:(BOOL)anchorBelow {
     CGAffineTransform transform = self.RectangleImage.transform;
-    float y = (self.RectangleImage.center.y - [self getAnchorY:anchorBelow]); // never 0 thanks to sizes chosen
+    float y = (self.RectangleImage.center.y - [self anchorY:anchorBelow]); // never 0 thanks to sizes chosen
     float x = (self.imageOriginalCenter.x-self.RectangleImage.center.x);
-    float theta = [self getATanAngleFromX:x andY:y];
+    float theta = [self tanAngleFromX:x andY:y];
 
     transform.a =  cosf(theta);
     transform.b =  sinf(theta);
@@ -140,7 +140,7 @@
 #pragma mark -
 #pragma mark Final Animation Methods
 
--(CGPoint) getBounceTargetFromAngle:(float) angle andOffset:(float)offset {
+-(CGPoint)bounceTargetFromAngle:(float) angle andOffset:(float)offset {
     CGPoint target = self.imageOriginalCenter;
     if (self.imageOriginalCenter.x < self.RectangleImage.center.x) {
         if (self.imageOriginalCenter.y < self.RectangleImage.center.y) {
@@ -163,13 +163,13 @@
     return target;
 }
 
--(void) doPostGestureAnimations {
+-(void)doPostGestureAnimations {
     float x = self.imageOriginalCenter.x - self.RectangleImage.center.x;
     float y = self.imageOriginalCenter.y - self.RectangleImage.center.y;
     if (!(y == 0 && x == 0)) {
-        float angle = [self getATanAngleFromX:x andY:y];
-        CGPoint bounceTarget = [self getBounceTargetFromAngle:angle andOffset:self.bounceOffset];
-        CGPoint negativeBounceTarget = [self getBounceTargetFromAngle:angle andOffset:self.bounceBackOffset];
+        float angle = [self tanAngleFromX:x andY:y];
+        CGPoint bounceTarget = [self bounceTargetFromAngle:angle andOffset:self.bounceOffset];
+        CGPoint negativeBounceTarget = [self bounceTargetFromAngle:angle andOffset:self.bounceBackOffset];
 
         if (self.RectangleImage.center.x > self.leftBound && self.RectangleImage.center.x < self.rightBound) {
             [UIView animateWithDuration:.15 delay:0 options:UIViewAnimationOptionAllowUserInteraction animations:^{
