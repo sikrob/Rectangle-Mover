@@ -13,11 +13,6 @@
 @property CGPoint imageOriginalCenter;
 @property CGPoint initialTouch;
 @property BOOL touchAboveCenter;
-@property int leftBound;
-@property int rightBound;
-@property int anchorOffset;
-@property float bounceOffset;
-@property float bounceBackOffset;
 
 - (IBAction)newRectButtonPressed:(UIButton *)sender;
 - (IBAction)imagePanned:(UIPanGestureRecognizer *)sender;
@@ -27,6 +22,12 @@
 
 @implementation ReMoverViewController
 
+static const int leftBound = 85;
+static const int rightBound = 225;
+static const int anchorOffset = 900;
+static const float bounceOffset = 10;
+static const float bounceBackOffset = -5;
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -34,12 +35,7 @@
     self.RectangleImage.userInteractionEnabled = YES;
     self.NewRectangleButton.enabled = NO;
     self.imageOriginalCenter = self.RectangleImage.center;
-    self.leftBound = 90;
-    self.rightBound = 220;
     self.touchAboveCenter = YES;
-    self.anchorOffset = 900;
-    self.bounceOffset = 10;
-    self.bounceBackOffset = -5;
 }
 
 - (void)didReceiveMemoryWarning
@@ -89,7 +85,7 @@
 #pragma mark -
 #pragma mark Angles and Anchors
 -(float)offsetY:(BOOL)anchorBelow {
-    float offsetY = self.anchorOffset;
+    float offsetY = anchorOffset;
     if (!anchorBelow) {
         offsetY = -offsetY;
     }
@@ -101,9 +97,9 @@
     // want in our rectangle, based on testing.
     float adjacentY = self.imageOriginalCenter.y;
     if (anchorBelow) {
-        adjacentY += self.anchorOffset;
+        adjacentY += anchorOffset;
     } else {
-        adjacentY -= self.anchorOffset;
+        adjacentY -= anchorOffset;
     }
     return adjacentY;
 }
@@ -181,10 +177,10 @@
     float y = self.imageOriginalCenter.y - self.RectangleImage.center.y;
     if (!(y == 0 && x == 0)) {
         float angle = [self tanAngleFromX:x andY:y];
-        CGPoint bounceTarget = [self bounceTargetFromAngle:angle andOffset:self.bounceOffset];
-        CGPoint negativeBounceTarget = [self bounceTargetFromAngle:angle andOffset:self.bounceBackOffset];
+        CGPoint bounceTarget = [self bounceTargetFromAngle:angle andOffset:bounceOffset];
+        CGPoint negativeBounceTarget = [self bounceTargetFromAngle:angle andOffset:bounceBackOffset];
 
-        if (self.RectangleImage.center.x > self.leftBound && self.RectangleImage.center.x < self.rightBound) {
+        if (self.RectangleImage.center.x > leftBound && self.RectangleImage.center.x < rightBound) {
             [UIView animateWithDuration:.15 delay:0 options:UIViewAnimationOptionAllowUserInteraction animations:^{
                 self.RectangleImage.center = bounceTarget;
                 self.RectangleImage.transform = CGAffineTransformIdentity;
@@ -205,7 +201,7 @@
             [UIView animateWithDuration:.2 animations:^{
                 CGPoint offScreenPoint;
                 offScreenPoint.y = self.RectangleImage.center.y;
-                if (self.RectangleImage.center.x > self.rightBound) {
+                if (self.RectangleImage.center.x > rightBound) {
                     offScreenPoint.x = self.RectangleImage.frame.size.height*2;
                 } else {
                     offScreenPoint.x = -self.RectangleImage.frame.size.height*2;
