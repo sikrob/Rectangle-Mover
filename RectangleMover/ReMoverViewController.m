@@ -14,8 +14,8 @@
 @property CGPoint initialTouch;
 @property BOOL touchAboveCenter;
 
-- (IBAction)newRectButtonPressed:(UIButton *)sender;
-- (IBAction)imagePanned:(UIPanGestureRecognizer *)sender;
+-(IBAction)newRectButtonPressed:(UIButton *)sender;
+-(IBAction)imagePanned:(UIPanGestureRecognizer *)sender;
 
 @end
 
@@ -28,7 +28,7 @@ static const int anchorOffset = 900;
 static const float bounceOffset = 10;
 static const float bounceBackOffset = -5;
 
-- (void)viewDidLoad
+-(void)viewDidLoad
 {
     [super viewDidLoad];
 
@@ -38,37 +38,35 @@ static const float bounceBackOffset = -5;
     self.touchAboveCenter = YES;
 }
 
-- (void)didReceiveMemoryWarning
+-(void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
 
-- (IBAction)newRectButtonPressed:(UIButton *)sender {
-    self.RectangleImage.transform = CGAffineTransformIdentity;
-    self.RectangleImage.layer.opacity = 0;
-    self.RectangleImage.center = self.imageOriginalCenter;
-
-    [UIView animateWithDuration:.25 animations:^{
-        self.RectangleImage.layer.opacity = 1.0;
-    }];
-
+-(IBAction)newRectButtonPressed:(UIButton *)sender {
+    [self resetRectangleImageAndFadeIn];
     self.NewRectangleButton.enabled = NO;
 }
 
-- (IBAction)imagePanned:(UIPanGestureRecognizer *)sender {
+-(void)resetRectangleImageAndFadeIn {
+    self.RectangleImage.transform = CGAffineTransformIdentity;
+    self.RectangleImage.layer.opacity = 0;
+    self.RectangleImage.center = self.imageOriginalCenter;
+    [UIView animateWithDuration:.25 animations:^{
+        self.RectangleImage.layer.opacity = 1.0;
+    }];
+}
+
+-(IBAction)imagePanned:(UIPanGestureRecognizer *)sender {
     switch (sender.state) {
         case UIGestureRecognizerStateChanged:{
-            self.RectangleImage.center = [self newCenterForPanTranslation:sender];
-            self.RectangleImage.transform = [self rotationForPanTranslation:[sender velocityInView:[self.RectangleImage superview]]
-                                                           withAnchorBelow:self.touchAboveCenter];
+            [self moveRectangleImageWithSender:sender];
             break;
         }
         case UIGestureRecognizerStateBegan: {
-            self.initialTouch = [sender locationOfTouch:0 inView:[self.RectangleImage superview]];
-            CGPoint touch = [sender locationOfTouch:0 inView:self.RectangleImage];
-            self.touchAboveCenter = (touch.y < self.RectangleImage.bounds.size.height/2);
+            [self captureInitialTouchAndSetAnchorWithSender:sender];
             break;
         }
         case UIGestureRecognizerStateEnded: {
@@ -79,7 +77,18 @@ static const float bounceBackOffset = -5;
             // Nothing special for other states, just default to catch them.
             break;
     }
+}
 
+-(void)moveRectangleImageWithSender:(UIPanGestureRecognizer*)sender {
+    self.RectangleImage.center = [self newCenterForPanTranslation:sender];
+    self.RectangleImage.transform = [self rotationForPanTranslation:[sender velocityInView:[self.RectangleImage superview]]
+                                                    withAnchorBelow:self.touchAboveCenter];
+}
+
+-(void)captureInitialTouchAndSetAnchorWithSender:(UIPanGestureRecognizer*)sender {
+    self.initialTouch = [sender locationOfTouch:0 inView:[self.RectangleImage superview]];
+    CGPoint touch = [sender locationOfTouch:0 inView:self.RectangleImage];
+    self.touchAboveCenter = (touch.y < self.RectangleImage.bounds.size.height/2);
 }
 
 #pragma mark -
