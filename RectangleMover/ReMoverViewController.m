@@ -189,36 +189,44 @@ static const float bounceBackOffset = -5;
         CGPoint negativeBounceTarget = [self bounceTargetFromAngle:angle andOffset:bounceBackOffset];
 
         if (self.RectangleImage.center.x > leftBound && self.RectangleImage.center.x < rightBound) {
-            [UIView animateWithDuration:.15 delay:0 options:UIViewAnimationOptionAllowUserInteraction animations:^{
-                self.RectangleImage.center = bounceTarget;
-                self.RectangleImage.transform = CGAffineTransformIdentity;
-            } completion:^(BOOL finished){
+            [self animateBounceTowardOriginalPositionUsingBounceTarget:bounceTarget andNegativeBounceTarget:negativeBounceTarget];
+        } else {
+            [self animatePushImageHorizontallyOffscreen];
+        }
+    }
+}
+
+-(void)animateBounceTowardOriginalPositionUsingBounceTarget:(CGPoint)bounceTarget andNegativeBounceTarget:(CGPoint)negativeBounceTarget {
+    [UIView animateWithDuration:.15 delay:0 options:UIViewAnimationOptionAllowUserInteraction animations:^{
+        self.RectangleImage.center = bounceTarget;
+        self.RectangleImage.transform = CGAffineTransformIdentity;
+    } completion:^(BOOL finished){
+        if (finished) {
+            [UIView animateWithDuration:.1 delay:0 options:UIViewAnimationOptionAllowUserInteraction animations:^{
+                self.RectangleImage.center = negativeBounceTarget;
+            } completion:^(BOOL finished) {
                 if (finished) {
-                    [UIView animateWithDuration:.1 delay:0 options:UIViewAnimationOptionAllowUserInteraction animations:^{
-                        self.RectangleImage.center = negativeBounceTarget;
-                    } completion:^(BOOL finished) {
-                        if (finished) {
-                            [UIView animateWithDuration:.1 animations:^{
-                                self.RectangleImage.center = self.imageOriginalCenter;
-                            }];
-                        }
+                    [UIView animateWithDuration:.1 animations:^{
+                        self.RectangleImage.center = self.imageOriginalCenter;
                     }];
                 }
             }];
-        } else {
-            [UIView animateWithDuration:.2 animations:^{
-                CGPoint offScreenPoint;
-                offScreenPoint.y = self.RectangleImage.center.y;
-                if (self.RectangleImage.center.x > rightBound) {
-                    offScreenPoint.x = self.RectangleImage.frame.size.height*2;
-                } else {
-                    offScreenPoint.x = -self.RectangleImage.frame.size.height*2;
-                }
-                self.RectangleImage.center = offScreenPoint;
-            }];
-            self.NewRectangleButton.enabled = YES;
         }
-    }
+    }];
+}
+
+-(void)animatePushImageHorizontallyOffscreen {
+    [UIView animateWithDuration:.2 animations:^{
+        CGPoint offScreenPoint;
+        offScreenPoint.y = self.RectangleImage.center.y;
+        if (self.RectangleImage.center.x > rightBound) {
+            offScreenPoint.x = self.RectangleImage.frame.size.height*2;
+        } else {
+            offScreenPoint.x = -self.RectangleImage.frame.size.height*2;
+        }
+        self.RectangleImage.center = offScreenPoint;
+    }];
+    self.NewRectangleButton.enabled = YES;
 }
 
 @end
