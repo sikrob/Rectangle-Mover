@@ -81,8 +81,7 @@ static const float bounceBackOffset = -5;
 
 -(void)moveRectangleImageWithSender:(UIPanGestureRecognizer*)sender {
     self.RectangleImage.center = [self newCenterForPanTranslation:sender];
-    self.RectangleImage.transform = [self rotationForPanTranslation:[sender velocityInView:[self.RectangleImage superview]]
-                                                    withAnchorBelow:self.touchAboveCenter];
+    self.RectangleImage.transform = [self rotationForPanTranslationWithAnchorBelow:self.touchAboveCenter];
 }
 
 -(void)captureInitialTouchAndSetAnchorWithSender:(UIPanGestureRecognizer*)sender {
@@ -141,7 +140,7 @@ static const float bounceBackOffset = -5;
     return center;
 }
 
--(CGAffineTransform)rotationForPanTranslation:(CGPoint) velocity withAnchorBelow:(BOOL)anchorBelow {
+-(CGAffineTransform)rotationForPanTranslationWithAnchorBelow:(BOOL)anchorBelow {
     CGAffineTransform transform = self.RectangleImage.transform;
     float y = (self.RectangleImage.center.y - [self anchorY:anchorBelow]); // never 0 thanks to sizes chosen
     float x = (self.imageOriginalCenter.x-self.RectangleImage.center.x);
